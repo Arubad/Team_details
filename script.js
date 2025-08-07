@@ -27,16 +27,68 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Navbar background change on scroll
-window.addEventListener('scroll', () => {
+// Enhanced Navbar with hover trigger
+document.addEventListener('DOMContentLoaded', () => {
     const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 100) {
-        navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-        navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
-    } else {
-        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-        navbar.style.boxShadow = 'none';
-    }
+    
+    // Create invisible trigger zone at the top
+    const navTrigger = document.createElement('div');
+    navTrigger.className = 'nav-trigger';
+    document.body.appendChild(navTrigger);
+    
+    let isNavbarVisible = false;
+    let scrollTimeout;
+    
+    // Show navbar on hover over trigger zone
+    navTrigger.addEventListener('mouseenter', () => {
+        navbar.classList.add('hover-zone');
+        isNavbarVisible = true;
+    });
+    
+    // Hide navbar when mouse leaves both trigger and navbar
+    const hideNavbar = () => {
+        if (!navbar.matches(':hover') && !navTrigger.matches(':hover')) {
+            navbar.classList.remove('hover-zone');
+            isNavbarVisible = false;
+        }
+    };
+    
+    navTrigger.addEventListener('mouseleave', () => {
+        setTimeout(hideNavbar, 100);
+    });
+    
+    navbar.addEventListener('mouseleave', () => {
+        setTimeout(hideNavbar, 100);
+    });
+    
+    // Show navbar on scroll (existing functionality enhanced)
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        
+        if (window.scrollY > 100) {
+            navbar.classList.add('visible');
+            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+            
+            // Auto-hide after scrolling stops (unless hovering)
+            scrollTimeout = setTimeout(() => {
+                if (!navbar.matches(':hover') && !navTrigger.matches(':hover')) {
+                    navbar.classList.remove('visible');
+                }
+            }, 2000);
+        } else {
+            navbar.classList.remove('visible');
+            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+        }
+    });
+    
+    // Keep navbar visible when hovering over it
+    navbar.addEventListener('mouseenter', () => {
+        clearTimeout(scrollTimeout);
+        navbar.classList.add('hover-zone');
+        isNavbarVisible = true;
+    });
 });
 
 // Intersection Observer for fade-in animations
@@ -85,9 +137,10 @@ window.addEventListener('scroll', () => {
 });
 
 // Add typing effect to hero title (optional enhancement)
-function typeWriter(element, text, speed = 100) {
+function typeWriter(element, text, speed = 80) {
     let i = 0;
     element.innerHTML = '';
+    element.style.minHeight = element.offsetHeight + 'px'; // Preserve height during typing
     
     function type() {
         if (i < text.length) {
@@ -104,7 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroTitle = document.querySelector('.hero h1');
     if (heroTitle) {
         const originalText = heroTitle.textContent;
-        typeWriter(heroTitle, originalText, 50);
+        // Add a small delay before starting the typing effect
+        setTimeout(() => {
+            typeWriter(heroTitle, originalText, 60);
+        }, 500);
     }
 });
 
